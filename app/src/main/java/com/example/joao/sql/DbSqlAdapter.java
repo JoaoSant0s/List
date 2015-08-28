@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -58,16 +59,36 @@ public final class DbSqlAdapter {
     }
 
     // Delete a row from the database, by rowId (primary key)
-    public boolean deleteRow(long rowId) {
+    public boolean deleteRow(long positionList) {
+        Log.d("Position", String.valueOf(positionList));
+        int rowId = getCol_Position(positionList);
+
         String where = FeedEntry.KEY_ROWID + "=" + rowId;
+        Log.d("condicao", where);
         return db.delete(FeedEntry.TABLE_NAME, where, null) != 0;
+    }
+
+    private int getCol_Position(long positionList){
+        Cursor c = db.query(true, FeedEntry.TABLE_NAME, ALL_KEYS, null, null, null, null, null, null);
+        int cont = 0;
+        if (c != null) {
+            c.moveToFirst();
+            if (c.moveToFirst()) {
+                do {
+                    if (cont == positionList){
+                        return c.getInt(COL_ROWID);
+                    }
+                    cont++;
+                } while(c.moveToNext());
+            }
+        }
+        return -1;
     }
 
     // Return all data in the database.
     public ArrayList<String> getAllRows() {
         ArrayList<String> h = new ArrayList<>();
-        String where = null;
-        Cursor c = db.query(true, FeedEntry.TABLE_NAME, ALL_KEYS, where, null, null, null, null, null);
+        Cursor c = db.query(true, FeedEntry.TABLE_NAME, ALL_KEYS, null, null, null, null, null, null);
         if (c != null) {
             c.moveToFirst();
             if (c.moveToFirst()) {

@@ -1,6 +1,8 @@
 package com.example.joao.list;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,17 +34,43 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> s = myDb.getAllRows();
 
-        mAdapter =  new ArrayAdapter(this, android.R.layout.simple_list_item_1, s);
-
+        mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, s);
         listView.setAdapter(mAdapter);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), parent.getItemIdAtPosition(position) + " foi selecionado", Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                builder.setTitle("Nota");
+                builder.setMessage((String) parent.getItemAtPosition(position));
+                final int p = position;
+                // Add the buttons
+                builder.setPositiveButton(R.string.action_edit, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked Edit button
+                    }
+                });
+                builder.setNeutralButton(R.string.action_remove, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        removeNote(p);
+                    }
+                });
+                builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+                builder.show();
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                copyNote((String) parent.getItemAtPosition(position));
+                return true;
             }
         });
     }
-
 
     @Override
     protected void onDestroy() {
@@ -75,10 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_new:
                         dialogCreation();
-                        return true;
-                    case R.id.action_create:
-                        Intent intent = new Intent(this, DisplayMessageActivity.class);
-                        startActivity(intent);
                         return true;
                     case R.id.action_clear:
                         clearDb();
@@ -113,9 +137,23 @@ public class MainActivity extends AppCompatActivity {
     public void createItemList(View view) {
         EditText editText = (EditText) view.findViewById(R.id.new_note);
         String message = editText.getText().toString();
-        MainActivity.myDb.insertRow(message);
+        myDb.insertRow(message);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+
+    private void removeNote(int positionList) {
+        myDb.deleteRow(positionList);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void copyNote(String value) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Copy Text", value);
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(MainActivity.this, R.string.action_copy , Toast.LENGTH_LONG).show();
     }
 
     private void clearDb() {

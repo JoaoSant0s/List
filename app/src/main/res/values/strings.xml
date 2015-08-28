@@ -1,16 +1,19 @@
 <resources>
     <string name="app_name">List</string>
 
-    <string name="edit_message">Enter a message</string>
-    <string name="button_send">Create</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="edit_message">Message</string>
 
-    <string name="title_activity_display_message">Minha Mensagem</string>
-    s
     <string name="action_create">Nova Nota</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_remove">Remover</string>
+
     <string name="action_cancel">Cancelar</string>
     <string name="action_search">Search</string>
     <string name="action_clear">Clear</string>
 
-    <string name="hello_world">Hello world!</string>
+
+
+    <string name="action_copy">Nota copiada</string>
+
 </resources>
