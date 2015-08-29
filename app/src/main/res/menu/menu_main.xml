@@ -7,9 +7,5 @@
         android:icon="@mipmap/ic_action_new"
         android:title="@string/action_create"
         app:showAsAction="ifRoom" />
-
-    <item android:id="@+id/action_clear"
-        android:title="@string/action_clear"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
+    
 </menu>

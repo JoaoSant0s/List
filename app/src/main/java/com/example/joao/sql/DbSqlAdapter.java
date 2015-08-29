@@ -113,8 +113,8 @@ public final class DbSqlAdapter {
     }
 
     // Change an existing row to be equal to new data.
-    public boolean updateRow(long rowId, String name) {
-        String where = FeedEntry.KEY_ROWID + "=" + rowId;
+    public boolean updateRow(long postion, String name) {
+        String where = FeedEntry.KEY_ROWID + "=" + getCol_Position(postion);
 
         ContentValues newValues = new ContentValues();
         newValues.put(FeedEntry.COLUMN_NAME_TITLE, name);
@@ -126,6 +126,7 @@ public final class DbSqlAdapter {
     public void clearRowset(){
         db.delete(FeedEntry.TABLE_NAME,null, null);
     }
+
 
     private static class DatabaseHelper extends SQLiteOpenHelper
     {

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public static DbSqlAdapter myDb;
-    public ArrayAdapter mAdapter;
+    public ArrayAdapter<String> mAdapter;
     public ListView listView;
 
     @Override
@@ -34,19 +34,20 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         ArrayList<String> s = myDb.getAllRows();
 
-        mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, s);
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, s);
         listView.setAdapter(mAdapter);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 builder.setTitle("Nota");
-                builder.setMessage((String) parent.getItemAtPosition(position));
+                final String message = (String) parent.getItemAtPosition(position);
+                builder.setMessage(message);
                 final int p = position;
                 // Add the buttons
                 builder.setPositiveButton(R.string.action_edit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User clicked Edit button
+                        dialogCreationOrEdit(message, p);
                     }
                 });
                 builder.setNeutralButton(R.string.action_remove, new DialogInterface.OnClickListener() {
@@ -102,28 +103,38 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.action_new:
-                        dialogCreation();
+                        dialogCreationOrEdit(null, -1);
                         return true;
-                    case R.id.action_clear:
-                        clearDb();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void dialogCreation() {
+    private void dialogCreationOrEdit(final String edit, final int p) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         LayoutInflater inflater = this.getLayoutInflater();
-        builder.setTitle(R.string.action_create);
         final View view = inflater.inflate(R.layout.activity_display_message, null);
+        int stringAction = -1;
+        if(edit == null){
+            stringAction = R.string.action_create;
+        }else{
+            ((EditText) view.findViewById(R.id.new_note)).setText(edit);
+            stringAction = R.string.action_edit;
+        }
+        builder.setTitle(stringAction);
+
         builder.setView(view)
             // Add action buttons
-            .setPositiveButton(R.string.action_create, new DialogInterface.OnClickListener() {
+            .setPositiveButton(stringAction, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int id) {
-                    createItemList(view);
+                    if (edit == null) {
+                        createItemList(view);
+                    } else {
+                        editItemList(view, edit, p);
+                    }
+
                 }
             })
             .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
@@ -132,6 +143,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         builder.show();
+    }
+
+    private void editItemList(View view, String edit, int position) {
+        EditText editText = (EditText) view.findViewById(R.id.new_note);
+        String message = editText.getText().toString();
+        myDb.updateRow(position, message);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     public void createItemList(View view) {
@@ -154,10 +173,5 @@ public class MainActivity extends AppCompatActivity {
         clipboard.setPrimaryClip(clip);
 
         Toast.makeText(MainActivity.this, R.string.action_copy , Toast.LENGTH_LONG).show();
-    }
-
-    private void clearDb() {
-        myDb.clearRowset();
-        startActivity(getIntent());
     }
 }
