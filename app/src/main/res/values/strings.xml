@@ -11,9 +11,11 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_search">Search</string>
     <string name="action_clear">Clear</string>
-
-
-
     <string name="action_copy">Nota copiada</string>
 
+    <string-array name="facility">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

@@ -7,5 +7,4 @@
         android:icon="@mipmap/ic_action_new"
         android:title="@string/action_create"
         app:showAsAction="ifRoom" />
-    
 </menu>
